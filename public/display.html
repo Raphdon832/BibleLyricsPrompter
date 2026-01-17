@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Church Display - Bible & Lyrics Prompter</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.5s ease;
+    }
+    
+    /* Themes */
+    body.dark {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #ffffff;
+    }
+    
+    body.light {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #1a1a2e;
+    }
+    
+    body.worship {
+      background: linear-gradient(135deg, #2c1654 0%, #4a1c6f 50%, #6b2d8c 100%);
+      color: #ffffff;
+    }
+    
+    body.nature {
+      background: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+      color: #ffffff;
+    }
+    
+    .container {
+      text-align: center;
+      padding: 40px;
+      max-width: 95vw;
+      max-height: 95vh;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Welcome Screen */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .welcome h1 {
+      font-size: 72px;
+      font-weight: 300;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .welcome .cross {
+      font-size: 120px;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+    
+    .welcome p {
+      font-size: 28px;
+      opacity: 0.8;
+      font-style: italic;
+    }
+    
+    /* Bible Verse Display */
+    .bible-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .bible-reference {
+      font-size: 36px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      opacity: 0.9;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    
+    .bible-text {
+      font-size: 48px;
+      line-height: 1.6;
+      max-width: 90vw;
+      font-weight: 300;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    .bible-text::before {
+      content: '"';
+      font-size: 1.2em;
+      opacity: 0.6;
+    }
+    
+    .bible-text::after {
+      content: '"';
+      font-size: 1.2em;
+      opacity: 0.6;
+    }
+    
+    /* Lyrics Display */
+    .lyrics-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .lyrics-title {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 40px;
+      opacity: 0.8;
+      letter-spacing: 1px;
+    }
+    
+    .lyrics-text {
+      font-size: 56px;
+      line-height: 1.5;
+      max-width: 90vw;
+      font-weight: 400;
+      white-space: pre-line;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .lyrics-progress {
+      position: fixed;
+      bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .lyrics-progress .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .lyrics-progress .dot.active {
+      background: rgba(255,255,255,0.9);
+      transform: scale(1.3);
+    }
+    
+    /* Program Display */
+    .program-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .program-header {
+      font-size: 28px;
+      opacity: 0.7;
+      margin-bottom: 20px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    
+    .program-current {
+      font-size: 64px;
+      font-weight: 600;
+      margin-bottom: 40px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .program-next {
+      font-size: 28px;
+      opacity: 0.6;
+    }
+    
+    .program-next span {
+      font-weight: 600;
+    }
+    
+    /* Hidden state */
+    .hidden {
+      display: none !important;
+    }
+    
+    /* Connection status */
+    .connection-status {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+    
+    .connection-status.connected {
+      background: rgba(76, 175, 80, 0.3);
+      color: #4CAF50;
+    }
+    
+    .connection-status.disconnected {
+      background: rgba(244, 67, 54, 0.3);
+      color: #f44336;
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="connection-status" id="connectionStatus">Connecting...</div>
+  
+  <!-- Welcome Screen -->
+  <div class="container welcome" id="welcomeScreen">
+    <div class="cross">✝</div>
+    <h1>Welcome</h1>
+    <p>Worship with us today</p>
+  </div>
+  
+  <!-- Bible Verse Display -->
+  <div class="container bible-display hidden" id="bibleScreen">
+    <div class="bible-reference" id="bibleReference">John 3:16</div>
+    <div class="bible-text" id="bibleText">For God so loved the world...</div>
+  </div>
+  
+  <!-- Lyrics Display -->
+  <div class="container lyrics-display hidden" id="lyricsScreen">
+    <div class="lyrics-title" id="lyricsTitle">Amazing Grace</div>
+    <div class="lyrics-text" id="lyricsText">Amazing grace, how sweet the sound...</div>
+    <div class="lyrics-progress" id="lyricsProgress"></div>
+  </div>
+  
+  <!-- Program Display -->
+  <div class="container program-display hidden" id="programScreen">
+    <div class="program-header">Order of Service</div>
+    <div class="program-current" id="programCurrent">Opening Prayer</div>
+    <div class="program-next" id="programNext">Next: <span>Praise & Worship</span></div>
+  </div>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    
+    // DOM Elements
+    const connectionStatus = document.getElementById('connectionStatus');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const bibleScreen = document.getElementById('bibleScreen');
+    const lyricsScreen = document.getElementById('lyricsScreen');
+    const programScreen = document.getElementById('programScreen');
+    
+    const bibleReference = document.getElementById('bibleReference');
+    const bibleText = document.getElementById('bibleText');
+    
+    const lyricsTitle = document.getElementById('lyricsTitle');
+    const lyricsText = document.getElementById('lyricsText');
+    const lyricsProgress = document.getElementById('lyricsProgress');
+    
+    const programCurrent = document.getElementById('programCurrent');
+    const programNext = document.getElementById('programNext');
+    
+    // Connection status
+    socket.on('connect', () => {
+      connectionStatus.textContent = 'Connected';
+      connectionStatus.className = 'connection-status connected';
+      setTimeout(() => {
+        connectionStatus.style.opacity = '0';
+      }, 3000);
+    });
+    
+    socket.on('disconnect', () => {
+      connectionStatus.textContent = 'Disconnected';
+      connectionStatus.className = 'connection-status disconnected';
+      connectionStatus.style.opacity = '0.7';
+    });
+    
+    // Hide all screens
+    function hideAllScreens() {
+      welcomeScreen.classList.add('hidden');
+      bibleScreen.classList.add('hidden');
+      lyricsScreen.classList.add('hidden');
+      programScreen.classList.add('hidden');
+    }
+    
+    // Update display based on state
+    socket.on('state-update', (state) => {
+      // Update theme
+      document.body.className = state.display.theme;
+      
+      // Update font sizes
+      bibleText.style.fontSize = state.display.fontSize + 'px';
+      lyricsText.style.fontSize = state.display.fontSize + 'px';
+      programCurrent.style.fontSize = state.display.fontSize + 'px';
+      
+      // Show appropriate screen
+      hideAllScreens();
+      
+      switch (state.mode) {
+        case 'welcome':
+          welcomeScreen.classList.remove('hidden');
+          break;
+          
+        case 'bible':
+          bibleScreen.classList.remove('hidden');
+          bibleReference.textContent = `${state.bible.book} ${state.bible.chapter}:${state.bible.verse}`;
+          bibleText.textContent = state.bible.text;
+          break;
+          
+        case 'lyrics':
+          lyricsScreen.classList.remove('hidden');
+          lyricsTitle.textContent = state.lyrics.title;
+          if (state.lyrics.slides && state.lyrics.slides.length > 0) {
+            lyricsText.textContent = state.lyrics.slides[state.lyrics.currentSlide] || '';
+            
+            // Update progress dots
+            lyricsProgress.innerHTML = '';
+            state.lyrics.slides.forEach((_, index) => {
+              const dot = document.createElement('div');
+              dot.className = 'dot' + (index === state.lyrics.currentSlide ? ' active' : '');
+              lyricsProgress.appendChild(dot);
+            });
+          }
+          break;
+          
+        case 'program':
+          programScreen.classList.remove('hidden');
+          const events = state.program.events;
+          const currentIndex = state.program.currentIndex;
+          
+          if (events && events.length > 0) {
+            programCurrent.textContent = events[currentIndex] || '';
+            
+            if (currentIndex < events.length - 1) {
+              programNext.innerHTML = `Next: <span>${events[currentIndex + 1]}</span>`;
+              programNext.style.display = 'block';
+            } else {
+              programNext.style.display = 'none';
+            }
+          }
+          break;
+      }
+    });
+    
+    // Keyboard navigation for manual testing
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        socket.emit('lyrics-navigate', 'next');
+      } else if (e.key === 'ArrowLeft') {
+        socket.emit('lyrics-navigate', 'prev');
+      }
+    });
+  </script>
+</body>
+</html>
