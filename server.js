@@ -22,6 +22,36 @@ try {
   console.log('Bible data not found, will use API fallback');
 }
 
+// Load Songs data
+let songsLibrary = [];
+const songsPath = path.join(__dirname, 'data', 'songs.json');
+
+function loadSongs() {
+  try {
+    if (fs.existsSync(songsPath)) {
+      songsLibrary = JSON.parse(fs.readFileSync(songsPath, 'utf8'));
+      console.log(`Loaded ${songsLibrary.length} songs from library`);
+    } else {
+      // Create empty file if not exists
+      fs.writeFileSync(songsPath, '[]', 'utf8');
+      songsLibrary = [];
+    }
+  } catch (err) {
+    console.error('Error loading songs:', err);
+    songsLibrary = [];
+  }
+}
+
+function saveSongs() {
+  try {
+    fs.writeFileSync(songsPath, JSON.stringify(songsLibrary, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error saving songs:', err);
+  }
+}
+
+loadSongs();
+
 // Bible books list
 const bibleBooks = [
   'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
@@ -268,6 +298,40 @@ io.on('connection', (socket) => {
     currentState.lyrics = lyricsData;
     io.emit('state-update', currentState);
   });
+
+  // ========== SONG LIBRARY EVENTS ==========
+  
+  // Send songs list to client
+  socket.on('get-songs', () => {
+    socket.emit('songs-list', songsLibrary);
+  });
+
+  // Save new song or update existing
+  socket.on('save-song', (songData) => {
+    const existingIndex = songsLibrary.findIndex(s => s.id === songData.id);
+    
+    if (existingIndex >= 0) {
+      songsLibrary[existingIndex] = songData; // Update
+    } else {
+      songData.id = songData.id || Date.now().toString();
+      songsLibrary.push(songData); // Add new
+    }
+    
+    // Sort alpha by title
+    songsLibrary.sort((a, b) => a.title.localeCompare(b.title));
+    
+    saveSongs();
+    io.emit('songs-list', songsLibrary); // Broadcast update to all controls
+  });
+
+  // Delete song
+  socket.on('delete-song', (songId) => {
+    songsLibrary = songsLibrary.filter(s => s.id !== songId);
+    saveSongs();
+    io.emit('songs-list', songsLibrary);
+  });
+
+  // ========================================
   
   // Handle next/previous slide for lyrics
   socket.on('lyrics-navigate', (direction) => {
