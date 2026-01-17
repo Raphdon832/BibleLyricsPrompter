@@ -561,112 +561,113 @@
     }
     
     .kjv-badge { background: rgba(234, 179, 8, 0.2); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.3); }
-    .offline-badge { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-    
-    .auto-loaded {
-      color: #94a3b8;
-      font-size: 12px;
-      font-style: italic;
-      margin-left: 12px;
-    }
-
-    /* Verse Separator */
-    .verse-separator {
-      color: var(--text-secondary);
-      font-weight: 500;
-      padding: 0 4px;
-    }
-    
-    /* Quick Input */
-    .quick-verse-input {
-      background: var(--bg-card);
-      padding: 24px;
-      border-radius: var(--radius-md);
-      margin-bottom: 32px;
-      border: 1px dashed var(--border-color);
-    }
-    
-    .quick-verse-input label {
-      display: block;
-      margin-bottom: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .quick-input-row {
-      display: flex;
-      gap: 12px;
-    }
-    
-    .quick-input-row input {
-      flex: 1;
-    }
-    
-    /* Book Info */
-    .book-info {
-      background: rgba(59, 130, 246, 0.1);
-      border-left: 3px solid var(--primary);
-      border-radius: 4px;
-      padding: 12px 16px;
-      margin-bottom: 24px;
-      font-size: 14px;
+    /* Mobile Responsiveness */
+    .mobile-menu-btn {
       display: none;
-      color: var(--text-main);
-    }
-    
-    .book-info.show {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .book-info strong {
-      color: var(--primary);
-      font-weight: 600;
-    }
-    
-    /* Chapter Verses List */
-    .chapter-verses {
-      margin-top: 32px;
-      background: #0f172a;
-      border-radius: var(--radius-md);
-      padding: 24px;
-      max-height: 400px;
-      overflow-y: auto;
-      border: 1px solid var(--border-color);
-    }
-    
-    .chapter-verses h4 {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 12px;
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
+      background: transparent;
+      border: none;
       color: var(--text-main);
       cursor: pointer;
-      transition: all 0.2s;
+      padding: 8px;
     }
     
-    .btn-small:hover {
-      background: var(--bg-hover);
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 900;
+      backdrop-filter: blur(2px);
     }
     
-    .verse-item {
+    @media (max-width: 768px) {
+      .header {
+        padding: 12px 16px;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .main-container {
+        display: block;
+      }
+      
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        width: 280px;
+        height: 100vh;
+        z-index: 1000;
+        box-shadow: 4px 0 16px rgba(0,0,0,0.3);
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .sidebar.active {
+        left: 0;
+      }
+      
+      .sidebar-overlay.active {
+        display: block;
+      }
+      
+      .content {
+        padding: 16px;
+        padding-top: 24px;
+        min-height: calc(100vh - 60px);
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .theme-options {
+        grid-template-columns: 1fr; 
+      }
+      
+      .nav-controls {
+        gap: 16px;
+      }
+      
+      .nav-btn {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+      }
+      
+      .preview-window {
+        padding: 16px;
+        min-height: 160px;
+      }
+      
+      .panel h2 {
+        font-size: 20px;
+        margin-bottom: 24px;
+      }
+
+      /* Adjust quick verse input */
+      .quick-input-row {
+        flex-direction: column;
+      }
+      
+      .kjv-badge, .offline-badge {
+        display: none; /* Save space in header on mobile */
+      }
+      
+      .header h1 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+      }
+    }
+      /* End of Mobile Responsiveness */
+      
       padding: 12px 16px;
       margin-bottom: 8px;
       background: var(--bg-card);
@@ -713,53 +714,19 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .main-container {
-        grid-template-columns: 1fr;
-      }
-      
-      .sidebar {
-        display: none;
-      }
-      
-      /* Mobile Navigation Bar */
-      .sidebar.mobile-nav {
-        display: flex;
-        flex-direction: row;
-        overflow-x: auto;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        background: var(--bg-card);
-        border-top: 1px solid var(--border-color);
-        border-right: none;
-        padding: 8px;
-      }
-
-      .content {
-        padding: 20px;
-        padding-bottom: 80px; /* Space for mobile nav */
-      }
-      
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-      
-      .settings-grid {
-        grid-template-columns: 1fr;
-      }
-    }
   </style>
 </head>
 <body>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="header">
-    <div class="header-branding">
-      <span class="material-icons-round" style="color: var(--primary);">church</span>
-      <h1>IOCC Prompter</h1>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span class="material-icons-round">menu</span>
+      </button>
+      <div class="header-branding">
+        <span class="material-icons-round" style="color: var(--primary);">church</span>
+        <h1>IOCC Prompter</h1>
+      </div>
     </div>
     <div class="connection-badge" id="connectionBadge">Connecting...</div>
   </div>
@@ -1751,6 +1718,33 @@ The hour I first believed</textarea>
     
     // Initialize
     updateBiblePreview();
+    
+    // Mobile Menu Logic
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    
+    function toggleMenu() {
+      sidebar.classList.toggle('active');
+      sidebarOverlay.classList.toggle('active');
+    }
+    
+    function closeMenu() {
+      sidebar.classList.remove('active');
+      sidebarOverlay.classList.remove('active');
+    }
+    
+    mobileMenuBtn.addEventListener('click', toggleMenu);
+    sidebarOverlay.addEventListener('click', closeMenu);
+    
+    // Auto-close menu when clicking a mode button on mobile
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          closeMenu();
+        }
+      });
+    });
   </script>
 </body>
 </html>
