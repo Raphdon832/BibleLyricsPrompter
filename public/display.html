@@ -357,8 +357,28 @@
       }
     });
     
+    // Double click to toggle fullscreen
+    document.addEventListener('dblclick', toggleFullScreen);
+    
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((e) => {
+          console.log(`Error attempting to enable full-screen mode: ${e.message} (${e.name})`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
     // Keyboard navigation for manual testing
     document.addEventListener('keydown', (e) => {
+      // 'f' key for fullscreen
+      if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+      
       if (e.key === 'ArrowRight' || e.key === ' ') {
         socket.emit('lyrics-navigate', 'next');
       } else if (e.key === 'ArrowLeft') {
